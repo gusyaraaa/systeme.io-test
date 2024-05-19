@@ -29,15 +29,4 @@ export default defineConfig(({ command }) => ({
       $fonts: path.resolve(__dirname, 'src/assets/fonts'),
     },
   },
-  css: {
-    modules: {
-      generateScopedName:
-        command === 'build' ? undefined : '[name]__[local]___[hash:base64:5]',
-    },
-    preprocessorOptions: {
-      scss: {
-        additionalData: `@import 'src/shared/styles/index.global.scss';`,
-      },
-    },
-  },
 }))
