@@ -1,7 +1,7 @@
 import { Outlet, createBrowserRouter } from 'react-router-dom'
 
-import { RouteProducts } from 'routes/RouteProducts/RouteProducts'
-import { AppLayout } from 'shared/ui/layout/AppLayout/AppLayout'
+import { RouteProducts } from 'routes/RouteProducts'
+import { AppLayout } from 'shared/ui/layout/AppLayout'
 import { AppRedirect } from './ui/AppRedirect'
 import * as links from './links'
 
