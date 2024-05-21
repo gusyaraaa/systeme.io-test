@@ -1,6 +1,8 @@
 import { Outlet, createBrowserRouter } from 'react-router-dom'
 
 import { RouteProducts } from 'routes/RouteProducts'
+import { RoutePricePlans } from 'routes/RoutePricePlans'
+import { RoutePages } from 'routes/RoutePages'
 import { AppLayout } from 'shared/ui/layout/AppLayout'
 import { AppRedirect } from './ui/AppRedirect'
 import * as links from './links'
@@ -23,11 +25,11 @@ export const routerConfig = createBrowserRouter([
           },
           {
             path: links.pricePlans,
-            element: <></>,
+            element: <RoutePricePlans />,
           },
           {
             path: links.pages,
-            element: <></>,
+            element: <RoutePages />,
           },
         ],
       },

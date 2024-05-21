@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 interface ICell<T> {
   minWidth: number
@@ -11,9 +11,27 @@ interface ITable<T> {
   columns: ICell<T>[]
   data: T[]
   action?: (data: T) => React.ReactNode
+  actionMinWidth?: number
 }
 
-export function Table<T>({ headers, columns, data, action }: ITable<T>) {
+export function Table<T>({
+  headers,
+  columns,
+  data,
+  action,
+  actionMinWidth,
+}: ITable<T>) {
+  const ref = React.useRef<HTMLDivElement>(null)
+  const [calculatedMinWidth, setCalculatedMinWidth] = useState<
+    number | undefined
+  >(undefined)
+
+  useEffect(() => {
+    if (ref.current) {
+      setCalculatedMinWidth(ref.current.clientWidth)
+    }
+  }, [ref.current])
+
   return (
     <div className="flex flex-col">
       <div className="flex">
@@ -27,7 +45,10 @@ export function Table<T>({ headers, columns, data, action }: ITable<T>) {
           </div>
         ))}
         {action && (
-          <div style={{ minWidth: 75 }} className={`flex-0 px-4 py-2`} />
+          <div
+            style={{ minWidth: actionMinWidth ?? calculatedMinWidth }}
+            className={`flex-0 px-4 py-2`}
+          />
         )}
       </div>
       {data.map((item, index) => (
@@ -44,7 +65,15 @@ export function Table<T>({ headers, columns, data, action }: ITable<T>) {
               {column.cellRenderer(item)}
             </div>
           ))}
-          {action && action(item)}
+          {action && (
+            <div
+              ref={ref}
+              style={{ minWidth: actionMinWidth }}
+              className={`flex-0 p-2`}
+            >
+              {action(item)}
+            </div>
+          )}
         </div>
       ))}
     </div>

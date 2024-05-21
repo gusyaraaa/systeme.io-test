@@ -3,67 +3,62 @@ import { useTable } from 'shared/hooks/useTable'
 import { Table } from 'shared/ui/common/Table/Table'
 import { EditModal } from 'shared/ui/common/EditModal'
 import { formatDate } from 'shared/utils/formatDate'
-import { productsMock } from './mock'
+import { pricePlansMock } from './mock'
 
-export interface IProduct {
+export interface IPricePlan {
   id: number
-  name: string
-  options: {
-    size: string
-    amount: number
-  }
+  description: string
   active: boolean
   createdAt: string
+  removedAt: string
 }
 
 const renderColumn =
-  (column: string, isHeader?: boolean) => (data: IProduct) => {
+  (column: string, isHeader?: boolean) => (data: IPricePlan) => {
     if (isHeader) {
       return <span className="capitalize font-bold">{column}</span>
     }
 
     switch (column) {
-      case 'name':
+      case 'description':
         return <span>{String(data[column])}</span>
-      case 'options':
-        return (
-          <div className="flex space-x-4">
-            <span className="flex-1">{data.options.size}</span>
-            <span>{data.options.amount}</span>
-          </div>
-        )
       case 'active':
         return <span>{data.active ? 'active' : 'inactive'}</span>
       case 'createdAt':
-        const date = new Date(data.createdAt)
-        return <span>{formatDate(date)}</span>
+        const createDate = new Date(data.createdAt)
+        return <span>{formatDate(createDate)}</span>
+      case 'removedAt':
+        const removeDate = new Date(data.removedAt)
+        return <span>{formatDate(removeDate)}</span>
       default:
         return <span>{column}</span>
     }
   }
 
-export function RouteProducts() {
+export function RoutePricePlans() {
   const { openModal, closeModal } = useModal()
   const {
-    data: products,
-    setData: setProducts,
+    data: pricePlans,
+    setData: setPricePlans,
     headers,
     columns,
-  } = useTable<IProduct>(
-    productsMock,
-    ['name', 'options', 'status', 'created'],
-    ['name', 'options', 'active', 'createdAt'],
-    [300, 150, 100, 150],
+  } = useTable<IPricePlan>(
+    pricePlansMock,
+    ['description', 'status', 'created', 'removed'],
+    ['description', 'active', 'createdAt', 'removedAt'],
+    [300, 100, 150, 150],
     [1, 0, 0, 0],
     renderColumn,
   )
 
-  const handleEdit = (data: IProduct) => {
+  const handleEdit = (data: IPricePlan) => {
     openModal(<EditModal />, () => {
-      setProducts(
-        products.map(
-          (product): IProduct =>
-            product.id === data.id ? { ...product, name: 'edited' } : product,
+      setPricePlans(
+        pricePlans.map(
+          (pricePlan): IPricePlan =>
+            pricePlan.id === data.id
+              ? { ...pricePlan, description: 'edited' }
+              : pricePlan,
         ),
       )
       closeModal()
@@ -74,8 +69,8 @@ export function RouteProducts() {
     <Table
       headers={headers}
       columns={columns}
-      data={products}
-      action={(data: IProduct) => (
+      data={pricePlans}
+      action={(data: IPricePlan) => (
         <button
           className="bg-black rounded text-white px-2 py-1"
           onClick={() => handleEdit(data)}
