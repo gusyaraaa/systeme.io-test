@@ -1,6 +1,8 @@
 import { useTable } from 'shared/hooks/useTable'
+import { useLocalStorage } from 'shared/hooks/useLocalStorage'
 import { Table } from 'shared/ui/common/Table'
 import { EditButton } from 'shared/ui/common/EditButton'
+import { Filters } from 'shared/ui/common/Filters'
 import { formatDate } from 'shared/utils/formatDate'
 import { pagesMock } from './mock'
 
@@ -34,13 +36,9 @@ const renderColumn = (column: string, isHeader?: boolean) => (data: IPage) => {
 }
 
 export function RoutePages() {
-  const {
-    data: pages,
-    setData: setPages,
-    headers,
-    columns,
-  } = useTable<IPage>(
-    pagesMock,
+  const [pagesData, setPagesData] = useLocalStorage('pagesMock', pagesMock)
+  const [pages, setPages] = useLocalStorage('pages', pagesData)
+  const { headers, columns } = useTable<IPage>(
     ['title', 'status', 'updated', 'published'],
     ['title', 'active', 'updatedAt', 'publishedAt'],
     [300, 100, 150, 150],
@@ -49,19 +47,30 @@ export function RoutePages() {
   )
 
   return (
-    <Table
-      headers={headers}
-      columns={columns}
-      data={pages}
-      action={(data: IPage) => (
-        <EditButton
-          item={data}
-          items={pages}
-          setItems={setPages}
-          textFieldKey="title"
-        />
-      )}
-      actionMinWidth={60}
-    />
+    <>
+      <Filters
+        data={pagesMock}
+        setItems={setPages}
+        textFieldKey="title"
+        statusFieldKey="active"
+      />
+      <Table
+        headers={headers}
+        columns={columns}
+        data={pages}
+        action={(data: IPage) => (
+          <EditButton
+            item={data}
+            items={pages}
+            setItems={(items: IPage[]) => {
+              setPages(items)
+              setPagesData(items)
+            }}
+            textFieldKey="title"
+          />
+        )}
+        actionMinWidth={60}
+      />
+    </>
   )
 }

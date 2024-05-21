@@ -1,7 +1,4 @@
-import { useState } from 'react'
-
 export function useTable<T>(
-  mockData: T[],
   headerKeys: string[],
   columnKeys: (keyof T)[],
   widths: number[],
@@ -11,8 +8,6 @@ export function useTable<T>(
     isHeader?: boolean,
   ) => (data: T) => React.ReactNode,
 ) {
-  const [data, setData] = useState<T[]>(mockData)
-
   const createColumn = (
     minWidth: number,
     flexGrow: 0 | 1,
@@ -32,8 +27,6 @@ export function useTable<T>(
   )
 
   return {
-    data,
-    setData,
     headers,
     columns,
   }

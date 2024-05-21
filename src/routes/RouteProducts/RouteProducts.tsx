@@ -1,8 +1,11 @@
 import { useTable } from 'shared/hooks/useTable'
+import { useLocalStorage } from 'shared/hooks/useLocalStorage'
 import { Table } from 'shared/ui/common/Table'
 import { EditButton } from 'shared/ui/common/EditButton'
+import { Filters } from 'shared/ui/common/Filters'
 import { formatDate } from 'shared/utils/formatDate'
 import { productsMock } from './mock'
+import { useEffect } from 'react'
 
 export interface IProduct {
   id: number
@@ -42,13 +45,12 @@ const renderColumn =
   }
 
 export function RouteProducts() {
-  const {
-    data: products,
-    setData: setProducts,
-    headers,
-    columns,
-  } = useTable<IProduct>(
+  const [productsData, setProductsData] = useLocalStorage(
+    'productsMock',
     productsMock,
+  )
+  const [products, setProducts] = useLocalStorage('products', productsData)
+  const { headers, columns } = useTable<IProduct>(
     ['name', 'options', 'status', 'created'],
     ['name', 'options', 'active', 'createdAt'],
     [300, 150, 100, 150],
@@ -57,19 +59,30 @@ export function RouteProducts() {
   )
 
   return (
-    <Table
-      headers={headers}
-      columns={columns}
-      data={products}
-      action={(data: IProduct) => (
-        <EditButton
-          item={data}
-          items={products}
-          setItems={setProducts}
-          textFieldKey="name"
-        />
-      )}
-      actionMinWidth={60}
-    />
+    <>
+      <Filters
+        data={productsData}
+        setItems={setProducts}
+        textFieldKey="name"
+        statusFieldKey="active"
+      />
+      <Table
+        headers={headers}
+        columns={columns}
+        data={products}
+        action={(data: IProduct) => (
+          <EditButton
+            item={data}
+            items={products}
+            setItems={(items: IProduct[]) => {
+              setProducts(items)
+              setProductsData(items)
+            }}
+            textFieldKey="name"
+          />
+        )}
+        actionMinWidth={60}
+      />
+    </>
   )
 }

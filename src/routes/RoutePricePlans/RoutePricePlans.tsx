@@ -1,6 +1,8 @@
 import { useTable } from 'shared/hooks/useTable'
+import { useLocalStorage } from 'shared/hooks/useLocalStorage'
 import { Table } from 'shared/ui/common/Table'
 import { EditButton } from 'shared/ui/common/EditButton'
+import { Filters } from 'shared/ui/common/Filters'
 import { formatDate } from 'shared/utils/formatDate'
 import { pricePlansMock } from './mock'
 
@@ -35,13 +37,15 @@ const renderColumn =
   }
 
 export function RoutePricePlans() {
-  const {
-    data: pricePlans,
-    setData: setPricePlans,
-    headers,
-    columns,
-  } = useTable<IPricePlan>(
+  const [pricePlansData, setPricePlansData] = useLocalStorage(
+    'pricePlansMock',
     pricePlansMock,
+  )
+  const [pricePlans, setPricePlans] = useLocalStorage(
+    'pricePlans',
+    pricePlansData,
+  )
+  const { headers, columns } = useTable<IPricePlan>(
     ['description', 'status', 'created', 'removed'],
     ['description', 'active', 'createdAt', 'removedAt'],
     [300, 100, 150, 150],
@@ -50,19 +54,30 @@ export function RoutePricePlans() {
   )
 
   return (
-    <Table
-      headers={headers}
-      columns={columns}
-      data={pricePlans}
-      action={(data: IPricePlan) => (
-        <EditButton
-          item={data}
-          items={pricePlans}
-          setItems={setPricePlans}
-          textFieldKey="description"
-        />
-      )}
-      actionMinWidth={60}
-    />
+    <>
+      <Filters
+        data={pricePlansMock}
+        setItems={setPricePlans}
+        textFieldKey="description"
+        statusFieldKey="active"
+      />
+      <Table
+        headers={headers}
+        columns={columns}
+        data={pricePlans}
+        action={(data: IPricePlan) => (
+          <EditButton
+            item={data}
+            items={pricePlans}
+            setItems={(items: IPricePlan[]) => {
+              setPricePlans(items)
+              setPricePlansData(items)
+            }}
+            textFieldKey="description"
+          />
+        )}
+        actionMinWidth={60}
+      />
+    </>
   )
 }
