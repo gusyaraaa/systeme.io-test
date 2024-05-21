@@ -1,7 +1,6 @@
-import { useModal } from 'modules/modal'
 import { useTable } from 'shared/hooks/useTable'
-import { Table } from 'shared/ui/common/Table/Table'
-import { EditModal } from 'shared/ui/common/EditModal'
+import { Table } from 'shared/ui/common/Table'
+import { EditButton } from 'shared/ui/common/EditButton'
 import { formatDate } from 'shared/utils/formatDate'
 import { pagesMock } from './mock'
 
@@ -35,7 +34,6 @@ const renderColumn = (column: string, isHeader?: boolean) => (data: IPage) => {
 }
 
 export function RoutePages() {
-  const { openModal, closeModal } = useModal()
   const {
     data: pages,
     setData: setPages,
@@ -50,30 +48,18 @@ export function RoutePages() {
     renderColumn,
   )
 
-  const handleEdit = (data: IPage) => {
-    openModal(<EditModal />, () => {
-      setPages(
-        pages.map(
-          (page): IPage =>
-            page.id === data.id ? { ...page, title: 'edited' } : page,
-        ),
-      )
-      closeModal()
-    })
-  }
-
   return (
     <Table
       headers={headers}
       columns={columns}
       data={pages}
       action={(data: IPage) => (
-        <button
-          className="bg-black rounded text-white px-2 py-1"
-          onClick={() => handleEdit(data)}
-        >
-          Edit
-        </button>
+        <EditButton
+          item={data}
+          items={pages}
+          setItems={setPages}
+          textFieldKey="title"
+        />
       )}
       actionMinWidth={60}
     />

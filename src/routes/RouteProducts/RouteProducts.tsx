@@ -1,7 +1,6 @@
-import { useModal } from 'modules/modal'
 import { useTable } from 'shared/hooks/useTable'
-import { Table } from 'shared/ui/common/Table/Table'
-import { EditModal } from 'shared/ui/common/EditModal'
+import { Table } from 'shared/ui/common/Table'
+import { EditButton } from 'shared/ui/common/EditButton'
 import { formatDate } from 'shared/utils/formatDate'
 import { productsMock } from './mock'
 
@@ -43,7 +42,6 @@ const renderColumn =
   }
 
 export function RouteProducts() {
-  const { openModal, closeModal } = useModal()
   const {
     data: products,
     setData: setProducts,
@@ -58,30 +56,18 @@ export function RouteProducts() {
     renderColumn,
   )
 
-  const handleEdit = (data: IProduct) => {
-    openModal(<EditModal />, () => {
-      setProducts(
-        products.map(
-          (product): IProduct =>
-            product.id === data.id ? { ...product, name: 'edited' } : product,
-        ),
-      )
-      closeModal()
-    })
-  }
-
   return (
     <Table
       headers={headers}
       columns={columns}
       data={products}
       action={(data: IProduct) => (
-        <button
-          className="bg-black rounded text-white px-2 py-1"
-          onClick={() => handleEdit(data)}
-        >
-          Edit
-        </button>
+        <EditButton
+          item={data}
+          items={products}
+          setItems={setProducts}
+          textFieldKey="name"
+        />
       )}
       actionMinWidth={60}
     />

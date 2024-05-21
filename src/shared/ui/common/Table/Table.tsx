@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 interface ICell<T> {
   minWidth: number
@@ -21,7 +21,7 @@ export function Table<T>({
   action,
   actionMinWidth,
 }: ITable<T>) {
-  const ref = React.useRef<HTMLDivElement>(null)
+  const ref = useRef<HTMLDivElement>(null)
   const [calculatedMinWidth, setCalculatedMinWidth] = useState<
     number | undefined
   >(undefined)
@@ -60,7 +60,7 @@ export function Table<T>({
             <div
               key={`${index}_${i}`}
               style={{ minWidth: column.minWidth }}
-              className={`flex-${column.flexGrow} border px-4 py-2`}
+              className={`flex-${column.flexGrow} border px-4 py-2 overflow-hidden overflow-ellipsis`}
             >
               {column.cellRenderer(item)}
             </div>

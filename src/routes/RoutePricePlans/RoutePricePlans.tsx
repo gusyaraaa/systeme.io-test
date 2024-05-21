@@ -1,7 +1,6 @@
-import { useModal } from 'modules/modal'
 import { useTable } from 'shared/hooks/useTable'
-import { Table } from 'shared/ui/common/Table/Table'
-import { EditModal } from 'shared/ui/common/EditModal'
+import { Table } from 'shared/ui/common/Table'
+import { EditButton } from 'shared/ui/common/EditButton'
 import { formatDate } from 'shared/utils/formatDate'
 import { pricePlansMock } from './mock'
 
@@ -36,7 +35,6 @@ const renderColumn =
   }
 
 export function RoutePricePlans() {
-  const { openModal, closeModal } = useModal()
   const {
     data: pricePlans,
     setData: setPricePlans,
@@ -51,32 +49,18 @@ export function RoutePricePlans() {
     renderColumn,
   )
 
-  const handleEdit = (data: IPricePlan) => {
-    openModal(<EditModal />, () => {
-      setPricePlans(
-        pricePlans.map(
-          (pricePlan): IPricePlan =>
-            pricePlan.id === data.id
-              ? { ...pricePlan, description: 'edited' }
-              : pricePlan,
-        ),
-      )
-      closeModal()
-    })
-  }
-
   return (
     <Table
       headers={headers}
       columns={columns}
       data={pricePlans}
       action={(data: IPricePlan) => (
-        <button
-          className="bg-black rounded text-white px-2 py-1"
-          onClick={() => handleEdit(data)}
-        >
-          Edit
-        </button>
+        <EditButton
+          item={data}
+          items={pricePlans}
+          setItems={setPricePlans}
+          textFieldKey="description"
+        />
       )}
       actionMinWidth={60}
     />
