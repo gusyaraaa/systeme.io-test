@@ -1,16 +1,19 @@
+import React from 'react'
+
 interface ICell<T> {
   minWidth: number
   flexGrow: number
-  cellRenderer: (data?: T) => JSX.Element
+  cellRenderer: (data?: T) => React.ReactNode
 }
 
 interface ITable<T> {
-  headers: ICell<string>[]
+  headers: ICell<T>[]
   columns: ICell<T>[]
   data: T[]
+  action?: (data: T) => React.ReactNode
 }
 
-export function Table<T>({ headers, columns, data }: ITable<T>) {
+export function Table<T>({ headers, columns, data, action }: ITable<T>) {
   return (
     <div className="flex flex-col">
       <div className="flex">
@@ -23,6 +26,9 @@ export function Table<T>({ headers, columns, data }: ITable<T>) {
             {header.cellRenderer()}
           </div>
         ))}
+        {action && (
+          <div style={{ minWidth: 75 }} className={`flex-0 px-4 py-2`} />
+        )}
       </div>
       {data.map((item, index) => (
         <div
@@ -38,6 +44,7 @@ export function Table<T>({ headers, columns, data }: ITable<T>) {
               {column.cellRenderer(item)}
             </div>
           ))}
+          {action && action(item)}
         </div>
       ))}
     </div>

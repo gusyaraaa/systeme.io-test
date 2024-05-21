@@ -1,6 +1,10 @@
+import { useModal } from 'modules/modal'
 import { Table } from 'shared/ui/common/Table/Table'
+import { useTable } from 'shared/hooks/useTable'
+import { EditModal } from './ui/EditModal'
+import { productsMock } from './mock'
 
-interface IProduct {
+export interface IProduct {
   id: number
   name: string
   options: {
@@ -11,130 +15,80 @@ interface IProduct {
   createdAt: string
 }
 
-const productsMock: IProduct[] = [
-  {
-    id: 14381328,
-    name: 'id quis voluptate nostrud',
-    options: {
-      size: 'XL',
-      amount: 100,
-    },
-    active: true,
-    createdAt: '1985-08-09T02:10:18.0Z',
-  },
-  {
-    id: 26785188,
-    name: 'esse elit',
-    options: {
-      size: 'S',
-      amount: 10,
-    },
-    active: true,
-    createdAt: '1956-03-20T08:59:40.0Z',
-  },
-  {
-    id: 63878634,
-    name: 'enim',
-    options: {
-      size: 'L',
-      amount: 20,
-    },
-    active: false,
-    createdAt: '2016-07-27T16:05:57.0Z',
-  },
-  {
-    id: 79901249,
-    name: 'eu ad',
-    options: {
-      size: 'XXL',
-      amount: 1000,
-    },
-    active: true,
-    createdAt: '1988-08-20T03:53:24.0Z',
-  },
-  {
-    id: 53113051,
-    name: 'proident ipsum',
-    options: {
-      size: 'XL',
-      amount: 4,
-    },
-    active: true,
-    createdAt: '2003-01-19T20:09:29.0Z',
-  },
-  {
-    id: 49132779,
-    name: 'aliqua adipisicing',
-    options: {
-      size: 'S',
-      amount: 22,
-    },
-    active: false,
-    createdAt: '2003-06-14T02:44:44.0Z',
-  },
-  {
-    id: 12135250,
-    name: 'dolor non in sunt',
-    options: {
-      size: 'M',
-      amount: 11,
-    },
-    active: true,
-    createdAt: '2000-08-04T19:49:04.0Z',
-  },
-  {
-    id: 47196404,
-    name: 'dolor culpa in cupidatat',
-    options: {
-      size: 'S',
-      amount: 1,
-    },
-    active: false,
-    createdAt: '2003-11-15T23:56:45.0Z',
-  },
-  {
-    id: 5112903,
-    name: 'sunt amet do eu ipsum',
-    options: {
-      size: 'L',
-      amount: 10,
-    },
-    active: false,
-    createdAt: '1968-09-24T22:07:21.0Z',
-  },
-  {
-    id: 32497729,
-    name: 'eiusmod',
-    options: {
-      size: 'XXL',
-      amount: 0,
-    },
-    active: true,
-    createdAt: '2012-09-24T01:42:32.0Z',
-  },
-]
+const renderColumn =
+  (column: string, isHeader?: boolean) => (data: IProduct) => {
+    if (isHeader) {
+      return <span className="capitalize font-bold">{column}</span>
+    }
+
+    switch (column) {
+      case 'name':
+        return <span>{String(data[column])}</span>
+      case 'options':
+        return (
+          <div className="flex space-x-4">
+            <span className="flex-1">{data.options.size}</span>
+            <span>{data.options.amount}</span>
+          </div>
+        )
+      case 'active':
+        return <span>{data.active ? 'active' : 'inactive'}</span>
+      case 'createdAt':
+        const date = new Date(data.createdAt)
+        return (
+          <span>
+            {date.toLocaleDateString()}{' '}
+            {date.toLocaleTimeString(undefined, {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </span>
+        )
+      default:
+        return <span>{column}</span>
+    }
+  }
 
 export function RouteProducts() {
-  const renderHeader = (header: string) => () => <span>{header}</span>
-  const renderColumn = (column: keyof IProduct) => (data: IProduct) => (
-    <span>{String(data[column])}</span>
+  const { openModal, closeModal } = useModal()
+  const {
+    data: products,
+    setData: setProducts,
+    headers,
+    columns,
+  } = useTable<IProduct>(
+    productsMock,
+    ['name', 'options', 'status', 'created'],
+    ['name', 'options', 'active', 'createdAt'],
+    [300, 150, 100, 150],
+    [1, 0, 0, 0],
+    renderColumn,
   )
+
+  const handleEdit = (data: IProduct) => {
+    openModal(<EditModal />, () => {
+      setProducts(
+        products.map((product) =>
+          product.id === data.id ? { ...product, name: 'edited' } : product,
+        ),
+      )
+      closeModal()
+    })
+  }
 
   return (
     <Table
-      headers={[
-        { minWidth: 200, flexGrow: 1, cellRenderer: renderHeader('name') },
-        { minWidth: 300, flexGrow: 0, cellRenderer: renderHeader('status') },
-        { minWidth: 300, flexGrow: 0, cellRenderer: renderHeader('created') },
-        { minWidth: 300, flexGrow: 0, cellRenderer: renderHeader('') },
-      ]}
-      columns={[
-        { minWidth: 200, flexGrow: 1, cellRenderer: renderColumn('name') },
-        { minWidth: 300, flexGrow: 0, cellRenderer: renderColumn('options') },
-        { minWidth: 300, flexGrow: 0, cellRenderer: renderColumn('active') },
-        { minWidth: 300, flexGrow: 0, cellRenderer: renderColumn('createdAt') },
-      ]}
-      data={productsMock}
+      headers={headers}
+      columns={columns}
+      data={products}
+      action={(data: IProduct) => (
+        <button
+          className="m-2 bg-black rounded text-white px-2 py-1"
+          onClick={() => handleEdit(data)}
+        >
+          Edit
+        </button>
+      )}
     />
   )
 }

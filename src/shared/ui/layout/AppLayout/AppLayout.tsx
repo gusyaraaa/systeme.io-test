@@ -4,9 +4,11 @@ import { Header } from '../Header'
 
 export function AppLayout() {
   return (
-    <div>
+    <>
       <Header />
-      <Outlet />
-    </div>
+      <div className="max-w-[1200px] m-auto">
+        <Outlet />
+      </div>
+    </>
   )
 }
